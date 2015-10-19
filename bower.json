@@ -29,10 +29,10 @@
     "iron-dropdown": "PolymerElements/iron-dropdown#1.0.5",
     "iron-list": "PolymerElements/iron-list#1.1.0",
     "paper-spinner": "PolymerElements/paper-spinner#1.0.2",
-    "t-button": "atomproject/t-button#0.0.0",
-    "t-filter": "atomproject/t-filter#0.0.0",
-    "t-notify": "atomproject/t-notify#0.0.0",
-    "t-shared-components": "atomproject/t-shared-components#0.0.0", 
+    "t-button": "atomelements/t-button#0.0.0",
+    "t-filter": "atomelements/t-filter#0.0.0",
+    "t-notify": "atomelements/t-notify#0.0.0",
+    "t-shared-components": "atomelements/t-shared-components#0.0.0", 
     "polymer": "Polymer/polymer#^1.0.0"
   },
   "devDependencies": {
