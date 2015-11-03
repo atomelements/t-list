@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../t-filter/t-filter.html">
-<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="t-simple-list.html">
 <link rel="import" href="../t-button/t-button.html">
 <link rel="import" href="../t-notify/t-notify.html">
 <link rel="import" href="../iron-dropdown/iron-dropdown-scroll-manager.html">
@@ -267,9 +267,9 @@ after the list became visible again. e.g.
             </div>
             <div class="layout vertical" style="height:100%">
                 <!--  selection-enabled has been removed to handle behaviour for Iphone-6-->
-                <iron-list id="list" selection-enabled items="{{_list}}" class="flex" on-selected-item-changed="_selectionChanged">
+                <t-simple-list id="list" selection-enabled items="{{_list}}" class="flex" on-selected-item-changed="_selectionChanged">
                     <content></content>
-                </iron-list>
+                </t-simple-list>
             </div>
             <div id="ajaxLoaderContainer" class="horizontal layout flex center-justified padding-horzintal-10">
                 <t-loader id="ajaxLoader" active></t-loader>
