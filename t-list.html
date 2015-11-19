@@ -119,8 +119,8 @@ after the list became visible again. e.g.
         background-color: red;
     }
     
-    .padding-horzintal-10 {
-        padding: 10px 0;
+    .padding-horizontal-10 {
+        padding: 0 10px;
     }
     
     .padding-10 {
@@ -262,6 +262,7 @@ after the list became visible again. e.g.
                     </div>
                 </template>
             </div>
+            <div class="error-message padding-horizontal-10">[[note]]</div>
             <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
                 <t-loader id="contentLoader" active="{{!_contentLoaded}}"></t-loader>
             </div>
@@ -300,6 +301,8 @@ after the list became visible again. e.g.
                 type: Boolean,
                 value: false
             },
+
+            note: { type: String, value: '' },
 
             /**
              * The object containing list data, it is fetched from the `dataApi` url
