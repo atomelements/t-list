@@ -514,24 +514,20 @@ after the list became visible again. e.g.
         },
 
 
-        attached: function() {
-            var component = this;
-            this.sortParams.forEach(function(param) {
-                if (param.default == true)
-                    component._defaultSorting = param.value;
-            });
-
-            //this.dataApi += this.dataApi.indexOf('?') > -1 ?  '&' : '?';
-            //this.$.dataCall.url = this.dataApi + component._defaultSorting + "+asc";
-            //this.$.dataCall.generateRequest();
-
-            this._setupInfiniteScroll();
+        attached: function() {            
             if (this.auto)
                 this.generateList();
         },
 
         generateList: function() {
             var component = this;
+            this.sortParams.forEach(function(param) {
+                if (param.default == true)
+                    component._defaultSorting = param.value;
+            });
+
+            this._setupInfiniteScroll();
+            
             if (this.dataApi != undefined && this.dataApi != '') {
                 this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + "+asc";
                 this._isSorted = true;
