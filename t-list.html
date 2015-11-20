@@ -262,7 +262,7 @@ after the list became visible again. e.g.
                     </div>
                 </template>
             </div>
-            <div class="error-message padding-horizontal-10">[[note]]</div>
+            <div class="error-message padding-horizontal-10" hidden$="[[_noResultsMatched]]">[[note]]</div>
             <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
                 <t-loader id="contentLoader" active="{{!_contentLoaded}}"></t-loader>
             </div>
