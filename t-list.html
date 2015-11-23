@@ -580,15 +580,23 @@ after the list became visible again. e.g.
             if (component.data != null && component.data.status.isSuccessful) {
                 if (this._isSorted) {
                     this._isSorted = false;
-                    if (component.tokenParam === "")
-                        component._list = component.data;
-                    else
-                        component._list = component.data[component.tokenParam];
+                    if (component.tokenParam === "") {
+                        if(component.data != null)
+                            component._list = component.data;
+                    }
+                    else {
+                        if (component.data[component.tokenParam] != null)
+                            component._list = component.data[component.tokenParam];
+                    }
                 } else {
-                    if (component.tokenParam === "")
-                        component._list = component._list.concat(component.data);
-                    else
-                        component._list = component._list.concat(component.data[component.tokenParam]);
+                    if (component.tokenParam === "") {
+                        if (component.data != null)
+                            component._list = component._list.concat(component.data);
+                    }
+                    else {
+                        if (component.data[component.tokenParam] != null)
+                            component._list = component._list.concat(component.data[component.tokenParam]);
+                    }
                 }
             }
 
@@ -689,10 +697,12 @@ after the list became visible again. e.g.
             }
             if (!this.data.status.isSuccessful || list === null || list.length === 0) {
                 this.noResultFound = true;
-                if (this._filtersApplied)
+                if (this._filtersApplied && this._list.length === 0)
                     this._noResultsFiltered = true;
-                else
-                    this._noResultFound = true;
+                else {
+                    if(this._list.length === 0)
+                        this._noResultFound = true;
+                }
             }
             else{
                 this._noResultFound = false;
