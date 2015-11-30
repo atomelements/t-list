@@ -248,7 +248,7 @@ after the list became visible again. e.g.
                     <iron-icon icon="filter-list" on-click="_openModal"></iron-icon>
                 </div>
                 <div class="modal layout vertical" id="filterModal" hidden>
-                    <t-filter opened id="filter" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" exclude-groups="[[excludeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal"></t-filter>
+                    <t-filter opened id="filter" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal"></t-filter>
                 </div>
             </template>
             <div class="sorting paper-header" hidden$="[[_noResultsMatched]]">
@@ -281,491 +281,490 @@ after the list became visible again. e.g.
     </template>
 </dom-module>
 <script>
-(function() {
+    (function () {
 
-    Polymer({
+        Polymer({
 
-        is: 't-list',
+            is: 't-list',
 
-        properties: {
+            properties: {
 
-            /**
-             * Turns on the display of filter controls
-             */
-            withFilter: {
-                type: Boolean,
-                value: false
-            },
-
-            auto: {
-                type: Boolean,
-                value: false
-            },
-
-            note: { type: String, value: '' },
-
-            /**
-             * The object containing list data, it is fetched from the `dataApi` url
-             * and can be optionally further configured using the `tokenParam`
-             * property
-             */
-            data: {
-                type: Object,
-                value: function() {
-                    return null;
+                /**
+                 * Turns on the display of filter controls
+                 */
+                withFilter: {
+                    type: Boolean,
+                    value: false
                 },
-                notify: true,
-                observer: '_getList'
-            },
 
-            noResultsFoundMessage: {
-                type: String,
-                value: 'We could not find any flights for your search.'
-            },
+                auto: {
+                    type: Boolean,
+                    value: false
+                },
 
-            redirectLink:String,
+                note: { type: String, value: '' },
 
-            _noResultFound: {
-                type: Boolean,
-                value: false
-            },
+                /**
+                 * The object containing list data, it is fetched from the `dataApi` url
+                 * and can be optionally further configured using the `tokenParam`
+                 * property
+                 */
+                data: {
+                    type: Object,
+                    value: function () {
+                        return null;
+                    },
+                    notify: true,
+                    observer: '_getList'
+                },
 
-            _noResultsFiltered: {
-                type: Boolean,
-                value: false
-            },
+                noResultsFoundMessage: {
+                    type: String,
+                    value: 'We could not find any flights for your search.'
+                },
 
-            _noResultsMatched: {
-                type: Boolean,
-                value: false
-            },
+                redirectLink: String,
 
-            noResultsFilteredMessage: {
-                type: String,
-                value: 'We could not find any flights for the filters you have applied.'
-            },
+                _noResultFound: {
+                    type: Boolean,
+                    value: false
+                },
 
-            _filtersApplied: Boolean,
+                _noResultsFiltered: {
+                    type: Boolean,
+                    value: false
+                },
 
-            /**
-             * The URL of the list data
-             */
-            dataApi: {
-                type: String,
-                value: ""
-            },
+                _noResultsMatched: {
+                    type: Boolean,
+                    value: false
+                },
 
-            /**
-             * Excluee the filters
-             */
-            excludeFilters: {
-                type: Array,
-                value: function() {
-                    return [];
-                }
-            },
+                noResultsFilteredMessage: {
+                    type: String,
+                    value: 'We could not find any flights for the filters you have applied.'
+                },
 
-            /**
-             * The parameters to append to the `dataApi` value, i.e. the
-             * list data URL. Usually these parameters control the querying
-             * of data on the api server.
-             */
-            dataApiParams: {
-                type: String,
-                value: ""
-            },
+                _filtersApplied: Boolean,
 
-            /**
-             * The api to fetch the various kinds of filters from
-             */
-            filterApi: {
-                type: String,
-                value: ""
-            },
+                /**
+                 * The URL of the list data
+                 */
+                dataApi: {
+                    type: String,
+                    value: ""
+                },
 
-            /**
-             * The parameters controlling the filtering of data
-             */
-            filterApiParams: {
-                type: String,
-                value: ""
-            },
-
-            /**
-             * The api to fetch the various kinds of filters from.
-             * This is used by this component
-             */
-            filterResultsApi: {
-                type: String,
-                value: ""
-            },
-
-            /**
-             * Turns the display of sorting controls
-             */
-            withSorting: {
-                type: Boolean,
-                value: false
-            },
-
-            /**
-             * Turns on when no list data can be fetched.
-             */
-            noResultFound: {
-                type: Boolean,
-                value: false
-            },
-
-            /**
-             * Controls the sorting type
-             */
-            sortBy: {
-                type: String,
-                value: "+asc"
-            },
-
-            /**
-             * The actual list which contains objects/values
-             * that will be iterated over to show the list.
-             */
-            _list: {
-                type: Array,
-                value: function() {
-                    return [];
-                }
-            },
-
-            /**
-             * This selects an object/value inside the data
-             * fetched from the `dataApi` URL, the selected object
-             * is used as the list data.
-             */
-            tokenParam: {
-                type: String,
-                value: ""
-            },
-
-            /**
-             * Array of sorting controls, this property is used
-             * to display various ways in which the list data can be sorted
-             */
-            sortParams: {
-                type: Array,
-                reflectToAttribute: true,
-                value: function() {
-                    return [];
-                }
-            },
-
-            _skip: {
-                type: Number,
-                value: 0
-            },
-
-            _filterSkip: {
-                type: Number,
-                value: 0
-            },
-
-            _scrollFired: {
-                type: Boolean,
-                value: false
-            },
-
-            _isFiltered: {
-                type: Boolean,
-                value: false
-            },
-
-            _isSorted: {
-                type: Boolean,
-                value: false
-            },
-
-            _contentLoaded: {
-                type: Boolean,
-                value: false
-            },
-
-            _filterCount: {
-                type: String,
-                value: ""
-            },
-
-            _defaultSorting: {
-                type: String,
-                value: ""
-            },
-
-            _isFiltering: {
-                type: Boolean,
-                value: false
-            },
-
-            /**
-             * This is the currently selected item in list.
-             * An item in list can be selected by clicking on it.
-             */
-            selectedItem: {
-                type: Object,
-                value: null,
-                notify: true
-            }
-        },
-
-
-        attached: function() {
-            var component = this;
-            this.sortParams.forEach(function(param) {
-                if (param.default == true)
-                    component._defaultSorting = param.value;
-            });
-
-            //this.dataApi += this.dataApi.indexOf('?') > -1 ?  '&' : '?';
-            //this.$.dataCall.url = this.dataApi + component._defaultSorting + "+asc";
-            //this.$.dataCall.generateRequest();
-
-            this._setupInfiniteScroll();
-            if (this.auto)
-                this.generateList();
-        },
-
-        generateList: function() {
-            var component = this;
-            if (this.dataApi != undefined && this.dataApi != '') {
-                this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + "+asc";
-                this._isSorted = true;
-                this.$.dataCall.generateRequest();
-            }
-        },
-
-        _setupInfiniteScroll: function() {
-            var component = this;
-            $(window).scroll(function(event) {
-                if (!component._scrollFired) {
-                    component.$.ajaxLoaderContainer.style.display = 'none';
-                    if (($(window).scrollTop() + $(window).height() > $(document).height() - 800)) {
-                        if (component._list.length < component.data.pagingInfo.filteredCount)
-                            component._getNextDataSet();
+                /**
+                 * Excluee the filters
+                 */
+                includeFilters: {
+                    type: Array,
+                    value: function () {
+                        return [];
                     }
+                },
+
+                /**
+                 * The parameters to append to the `dataApi` value, i.e. the
+                 * list data URL. Usually these parameters control the querying
+                 * of data on the api server.
+                 */
+                dataApiParams: {
+                    type: String,
+                    value: ""
+                },
+
+                /**
+                 * The api to fetch the various kinds of filters from
+                 */
+                filterApi: {
+                    type: String,
+                    value: ""
+                },
+
+                /**
+                 * The parameters controlling the filtering of data
+                 */
+                filterApiParams: {
+                    type: String,
+                    value: ""
+                },
+
+                /**
+                 * The api to fetch the various kinds of filters from.
+                 * This is used by this component
+                 */
+                filterResultsApi: {
+                    type: String,
+                    value: ""
+                },
+
+                /**
+                 * Turns the display of sorting controls
+                 */
+                withSorting: {
+                    type: Boolean,
+                    value: false
+                },
+
+                /**
+                 * Turns on when no list data can be fetched.
+                 */
+                noResultFound: {
+                    type: Boolean,
+                    value: false
+                },
+
+                /**
+                 * Controls the sorting type
+                 */
+                sortBy: {
+                    type: String,
+                    value: "+asc"
+                },
+
+                /**
+                 * The actual list which contains objects/values
+                 * that will be iterated over to show the list.
+                 */
+                _list: {
+                    type: Array,
+                    value: function () {
+                        return [];
+                    }
+                },
+
+                /**
+                 * This selects an object/value inside the data
+                 * fetched from the `dataApi` URL, the selected object
+                 * is used as the list data.
+                 */
+                tokenParam: {
+                    type: String,
+                    value: ""
+                },
+
+                /**
+                 * Array of sorting controls, this property is used
+                 * to display various ways in which the list data can be sorted
+                 */
+                sortParams: {
+                    type: Array,
+                    reflectToAttribute: true,
+                    value: function () {
+                        return [];
+                    }
+                },
+
+                _skip: {
+                    type: Number,
+                    value: 0
+                },
+
+                _filterSkip: {
+                    type: Number,
+                    value: 0
+                },
+
+                _scrollFired: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _isFiltered: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _isSorted: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _contentLoaded: {
+                    type: Boolean,
+                    value: false
+                },
+
+                _filterCount: {
+                    type: String,
+                    value: ""
+                },
+
+                _defaultSorting: {
+                    type: String,
+                    value: ""
+                },
+
+                _isFiltering: {
+                    type: Boolean,
+                    value: false
+                },
+
+                /**
+                 * This is the currently selected item in list.
+                 * An item in list can be selected by clicking on it.
+                 */
+                selectedItem: {
+                    type: Object,
+                    value: null,
+                    notify: true
                 }
-                event.stopImmediatePropagation();
-                return false;
-            });
-        },
+            },
 
-        _dataApiChanged: function() {
-            if (this.dataApi != undefined && this.dataApi != "" && this.auto) {
-                this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + "+asc";
-                this._isSorted = true;
-                this.$.dataCall.generateRequest();
-            }
-        },
 
-        _closeModal: function(event) {
-            this.$$('#filterModal').hidden = true;
-            Polymer.IronDropdownScrollManager.removeScrollLock(this);
-        },
-
-        _selectionChanged: function(event) {
-            if (event.detail.value != null) {
-                this.selectedItem = event.detail.value;
-                this.fire('item-selected', this.selectedItem);
-            }
-        },
-
-        _getList: function() {
-            var component = this;
-            this.$.ajaxLoaderContainer.style.display = 'none';
-            if (component.data != null && component.data.status.isSuccessful) {
-                if (this._isSorted) {
-                    this._isSorted = false;
-                    if (component.tokenParam === "") {
-                        if(component.data != null)
-                            component._list = component.data;
-                    }
-                    else {
-                        if (component.data[component.tokenParam] != null)
-                            component._list = component.data[component.tokenParam];
-                    }
-                } else {
-                    if (component.tokenParam === "") {
-                        if (component.data != null)
-                            component._list = component._list.concat(component.data);
-                    }
-                    else {
-                        if (component.data[component.tokenParam] != null)
-                            component._list = component._list.concat(component.data[component.tokenParam]);
-                    }
-                }
-            }
-
-            this.$.ajaxLoader.active = false;
-            component.$.list.fire('resize');
-
-        },
-
-        _applyFilters: function(event) {
-
-            this._contentLoaded = false;
-            this._skip = 0;
-            this._setFilterCount(event.detail.count);
-            this._list = [];
-            this._filtersApplied = false;
-            if (event.detail.filters != undefined && !event.detail.filters && !event.detail.filters.length == 0)
-                this._isFiltered = true;
-            else
-                this._isFiltered = false;
-
-            var filter = event.detail.filters;
-
-            if (filter.length > 0) {
-                this._isFiltering = true;
-                this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
-                this._filtersApplied = true;
-                this.$.applyFilterCall.body = JSON.stringify(filter);
-                this.$.applyFilterCall.generateRequest();
-            } else {
-                this._isFiltering = false;
-                this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
-                this.$.dataCall.generateRequest();
-            }
-            this.$$('#filterModal').hidden = true;
-            Polymer.IronDropdownScrollManager.removeScrollLock(this);
-        },
-
-        _setFilterCount: function(count) {
-            switch (count) {
-                case 0:
-                    this._filterCount = "";
-                    break;
-                case 1:
-                    this._filterCount = count + " filter applied";
-                    break;
-                default:
-                    this._filterCount = count + " filters applied";
-
-            }
-        },
-
-        _sortBy: function(e) {
-
-            var sortElement = e.currentTarget;
-            this._skip = 0;
-            var isAscending = true;
-            if (sortElement.className.search("active") >= 0) {
-                if (sortElement.className.search("desc") >= 0) {
-                    isAscending = true;
-                    sortElement.classList.remove("desc");
-                } else {
-                    isAscending = false;
-                    sortElement.classList.add("desc");
-                }
-            } else {
+            attached: function () {
                 var component = this;
-                this.sortParams.forEach(function(param) {
-                    component.$$('#' + param.key).classList.remove("active");
+                this.sortParams.forEach(function (param) {
+                    if (param.default == true)
+                        component._defaultSorting = param.value;
                 });
-                sortElement.classList.add("active");
-                isAscending = true;
-            }
 
-            if (isAscending)
-                this.sortBy = "+asc";
-            else
-                this.sortBy = "+desc";
+                //this.dataApi += this.dataApi.indexOf('?') > -1 ?  '&' : '?';
+                //this.$.dataCall.url = this.dataApi + component._defaultSorting + "+asc";
+                //this.$.dataCall.generateRequest();
 
-            this._defaultSorting = sortElement.getAttribute("data-value");
-            if (this._isFiltered) {
-                this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
-                this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
-                this.$.applyFilterCall.generateRequest();
-            } else {
-                this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
-                this.$.dataCall.generateRequest();
-            }
-            this._isSorted = true;
-            this._contentLoaded = false;
-        },
+                this._setupInfiniteScroll();
+                if (this.auto)
+                    this.generateList();
+            },
 
-        _listPopulated: function() {
-            var list = [];
-            if (this.tokenParam === '') {
-                list = this.data;
-            } else {
-                list = this.data[this.tokenParam];
-            }
-            if (!this.data.status.isSuccessful || list === null || list.length === 0) {
-                this.noResultFound = true;
-                if (this._filtersApplied && this._list.length === 0)
-                    this._noResultsFiltered = true;
-                else {
-                    if(this._list.length === 0)
-                        this._noResultFound = true;
-                }
-            }
-            else{
-                this._noResultFound = false;
-                this._noResultsFiltered = false;
-            }
-            this._noResultsMatched =this._noResultsFiltered || this._noResultFound;
-            this._contentLoaded = true;
-            this.fire('list-population');
-            this._scrollFired = false;
-        },
-
-        _openModal: function() {
-            this.$$('#filterModal').hidden = false;
-            Polymer.IronDropdownScrollManager.pushScrollLock(this);
-        },
-
-        _getNextDataSet: function() {
-
-            this.$.ajaxLoaderContainer.style.display = 'flex';
-            this.$.ajaxLoader.active = true;
-            if (this._isFiltering) {
-                this._skip = this._skip + 20;
-                this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
-                this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
-                this.$.applyFilterCall.generateRequest();
-            } else {
-                if (!this._isFiltered) {
-                    this._skip = this._skip + 20;
-                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
+            generateList: function () {
+                var component = this;
+                if (this.dataApi != undefined && this.dataApi != '') {
+                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + "+asc";
+                    this._isSorted = true;
                     this.$.dataCall.generateRequest();
-                    this._scrollFired = true;
-                } else {
-                    this._skip = 0;
-                    this._filterSkip = this._filterSkip + 20;
                 }
+            },
+
+            _setupInfiniteScroll: function () {
+                var component = this;
+                $(window).scroll(function (event) {
+                    if (!component._scrollFired) {
+                        component.$.ajaxLoaderContainer.style.display = 'none';
+                        if (($(window).scrollTop() + $(window).height() > $(document).height() - 800)) {
+                            if (component._list.length < component.data.pagingInfo.filteredCount)
+                                component._getNextDataSet();
+                        }
+                    }
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+            },
+
+            _dataApiChanged: function () {
+                if (this.dataApi != undefined && this.dataApi != "" && this.auto) {
+                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + "+asc";
+                    this._isSorted = true;
+                    this.$.dataCall.generateRequest();
+                }
+            },
+
+            _closeModal: function (event) {
+                this.$$('#filterModal').hidden = true;
+                Polymer.IronDropdownScrollManager.removeScrollLock(this);
+            },
+
+            _selectionChanged: function (event) {
+                if (event.detail.value != null) {
+                    this.selectedItem = event.detail.value;
+                    this.fire('item-selected', this.selectedItem);
+                }
+            },
+
+            _getList: function () {
+                var component = this;
+                this.$.ajaxLoaderContainer.style.display = 'none';
+                if (component.data != null && component.data.status.isSuccessful) {
+                    if (this._isSorted) {
+                        this._isSorted = false;
+                        if (component.tokenParam === "") {
+                            if (component.data != null)
+                                component._list = component.data;
+                        }
+                        else {
+                            if (component.data[component.tokenParam] != null)
+                                component._list = component.data[component.tokenParam];
+                        }
+                    } else {
+                        if (component.tokenParam === "") {
+                            if (component.data != null)
+                                component._list = component._list.concat(component.data);
+                        }
+                        else {
+                            if (component.data[component.tokenParam] != null)
+                                component._list = component._list.concat(component.data[component.tokenParam]);
+                        }
+                    }
+                }
+
+                this.$.ajaxLoader.active = false;
+                component.$.list.fire('resize');
+
+            },
+
+            _applyFilters: function (event) {
+
+                this._contentLoaded = false;
+                this._skip = 0;
+                this._setFilterCount(event.detail.count);
+                this._list = [];
+                this._filtersApplied = false;
+                if (event.detail.filters != undefined && !event.detail.filters && !event.detail.filters.length == 0)
+                    this._isFiltered = true;
+                else
+                    this._isFiltered = false;
+
+                var filter = event.detail.filters;
+
+                if (filter.length > 0) {
+                    this._isFiltering = true;
+                    this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
+                    this._filtersApplied = true;
+                    this.$.applyFilterCall.body = JSON.stringify(filter);
+                    this.$.applyFilterCall.generateRequest();
+                } else {
+                    this._isFiltering = false;
+                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
+                    this.$.dataCall.generateRequest();
+                }
+                this.$$('#filterModal').hidden = true;
+                Polymer.IronDropdownScrollManager.removeScrollLock(this);
+            },
+
+            _setFilterCount: function (count) {
+                switch (count) {
+                    case 0:
+                        this._filterCount = "";
+                        break;
+                    case 1:
+                        this._filterCount = count + " filter applied";
+                        break;
+                    default:
+                        this._filterCount = count + " filters applied";
+
+                }
+            },
+
+            _sortBy: function (e) {
+
+                var sortElement = e.currentTarget;
+                this._skip = 0;
+                var isAscending = true;
+                if (sortElement.className.search("active") >= 0) {
+                    if (sortElement.className.search("desc") >= 0) {
+                        isAscending = true;
+                        sortElement.classList.remove("desc");
+                    } else {
+                        isAscending = false;
+                        sortElement.classList.add("desc");
+                    }
+                } else {
+                    var component = this;
+                    this.sortParams.forEach(function (param) {
+                        component.$$('#' + param.key).classList.remove("active");
+                    });
+                    sortElement.classList.add("active");
+                    isAscending = true;
+                }
+
+                if (isAscending)
+                    this.sortBy = "+asc";
+                else
+                    this.sortBy = "+desc";
+
+                this._defaultSorting = sortElement.getAttribute("data-value");
+                if (this._isFiltered) {
+                    this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
+                    this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
+                    this.$.applyFilterCall.generateRequest();
+                } else {
+                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
+                    this.$.dataCall.generateRequest();
+                }
+                this._isSorted = true;
+                this._contentLoaded = false;
+            },
+
+            _listPopulated: function () {
+                var list = [];
+                if (this.tokenParam === '') {
+                    list = this.data;
+                } else {
+                    list = this.data[this.tokenParam];
+                }
+                if (!this.data.status.isSuccessful || list === null || list.length === 0) {
+                    this.noResultFound = true;
+                    if (this._filtersApplied && this._list.length === 0)
+                        this._noResultsFiltered = true;
+                    else {
+                        if (this._list.length === 0)
+                            this._noResultFound = true;
+                    }
+                }
+                else {
+                    this._noResultFound = false;
+                    this._noResultsFiltered = false;
+                }
+                this._noResultsMatched = this._noResultsFiltered || this._noResultFound;
+                this._contentLoaded = true;
+                this.fire('list-population');
+                this._scrollFired = false;
+            },
+
+            _openModal: function () {
+                this.$$('#filterModal').hidden = false;
+                Polymer.IronDropdownScrollManager.pushScrollLock(this);
+            },
+
+            _getNextDataSet: function () {
+
+                this.$.ajaxLoaderContainer.style.display = 'flex';
+                this.$.ajaxLoader.active = true;
+                if (this._isFiltering) {
+                    this._skip = this._skip + 20;
+                    this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
+                    this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
+                    this.$.applyFilterCall.generateRequest();
+                } else {
+                    if (!this._isFiltered) {
+                        this._skip = this._skip + 20;
+                        this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
+                        this.$.dataCall.generateRequest();
+                        this._scrollFired = true;
+                    } else {
+                        this._skip = 0;
+                        this._filterSkip = this._filterSkip + 20;
+                    }
+                }
+            },
+
+            _getPaginationApi: function () {
+                return this.dataApi + "&$skip=" + this._skip;
+            },
+
+            _getFilteredRatio: function (pagingInfo) {
+                if (pagingInfo != undefined)
+                    return pagingInfo.filteredCount + "/" + pagingInfo.total;
+            },
+
+            _hideList: function (noResultFound) {
+                return this._noResultFound || this._noResultsFiltered;
+            },
+
+            _getSortingClass: function (item) {
+                if (item.default)
+                    return "active";
+                return false;
+            },
+
+            _redirectToPage: function () {
+                window.location.href = this.redirectLink;
             }
-        },
 
-        _getPaginationApi: function() {
-            return this.dataApi + "&$skip=" + this._skip;
-        },
+        });
 
-        _getFilteredRatio: function(pagingInfo) {
-            if (pagingInfo != undefined)
-                return pagingInfo.filteredCount + "/" + pagingInfo.total;
-        },
-
-        _hideList: function(noResultFound){
-            return this._noResultFound || this._noResultsFiltered;
-        },
-
-        _getSortingClass: function(item) {
-            if (item.default)
-                return "active";
-            return false;
-        },
-
-        _redirectToPage: function()
-        {
-            window.location.href= this.redirectLink;
-        }
-
-    });
-
-})();
+    })();
 </script>
