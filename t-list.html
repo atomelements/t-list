@@ -248,7 +248,7 @@ after the list became visible again. e.g.
                     <iron-icon icon="filter-list" on-click="_openModal"></iron-icon>
                 </div>
                 <div class="modal layout vertical" id="filterModal" hidden>
-                    <t-filter opened id="filter" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal"></t-filter>
+                    <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal"></t-filter>
                 </div>
             </template>
             <div class="sorting paper-header" hidden$="[[_noResultsMatched]]">
@@ -300,6 +300,11 @@ after the list became visible again. e.g.
                 auto: {
                     type: Boolean,
                     value: false
+                },
+
+                showTwelveHourClock: {
+                    type: Boolean,
+                    value:false
                 },
 
                 note: { type: String, value: '' },
