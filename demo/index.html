@@ -12,13 +12,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <head>
     <title>t-list and paper-scroll-header-panel demo</title>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
     <link rel="import" href="../t-list.html">
     <link rel="import" href="../../t-result-item/t-result-item.html">
+    <link rel="import" href="../../t-shared-components/theme.html">
+
     <style is="custom-style">
     paper-scroll-header-panel {
         @apply(--layout-fit);
@@ -81,7 +86,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <t-list 
         data-api="http://dev.atom-project.io/1.0/components/components/pageComponents/t-list/demo/results.json"
         filter-api="http://dev.atom-project.io/1.0/components/components/pageComponents/t-list/demo/filter.json"
-        token-param="inventories">
+        token-param="inventories"
+        with-sorting
+        with-filter
+        sort-params='[{"key":"Price","value":"$orderby=minFare%2FFare%2FAmount","default":true},{"key":"Stops","value":"$orderby=TotalStops"},{"key":"Duration","value":"$orderby=duration/journey"}]'>
             <template>
                 <t-result-item itinerary="{{item}}"></t-result-item>
             </template>
