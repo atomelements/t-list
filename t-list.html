@@ -533,7 +533,7 @@ after the list became visible again. e.g.
                 this._setupInfiniteScroll();
 
                 if (this.dataApi != undefined && this.dataApi != '') {
-                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + "+asc";
+                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') !=-1 ?  "&" : "?") + this._defaultSorting + "+asc";
                     this._isSorted = true;
                     this.$.dataCall.generateRequest();
                 }
