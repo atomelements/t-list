@@ -6,12 +6,12 @@
             "dataApi": {
                 "name": "URL for list data",
                 "type": "string",
-                "value": "http://dev.atom-project.io/1.0/components/components/pageComponents/t-list/demo/results.json"
+                "value": "results.json"
             },
             "filterApi": {
                 "name": "URL for the filter",
                 "type": "string",
-                "value": "http://dev.atom-project.io/1.0/components/components/pageComponents/t-list/demo/filter.json"
+                "value": "filter.json"
             },
             "paginatedApi": {
                 "name": "URL for the filter",
@@ -20,23 +20,23 @@
             }
         }
     }, {
-    	"name": "Properties",
-    	"fields": {
-    		"tokenParam": {
+        "name": "Properties",
+        "fields": {
+            "tokenParam": {
                 "name": "List key",
                 "type": "string",
                 "value": "inventories"
-    		},
-    		"withSorting": {
+            },
+            "withSorting": {
                 "name": "Show sorting controls",
                 "type": "boolean",
                 "value": true
-    		},
-    		"withFilter": {
+            },
+            "withFilter": {
                 "name": "Show filters",
                 "type": "boolean",
                 "value": true
-    		}
-    	}
-	}]
+            }
+        }
+    }]
 }
