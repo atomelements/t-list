@@ -651,6 +651,7 @@ after the list became visible again. e.g.
             _sortBy: function (e) {
 
                 var sortElement = e.currentTarget;
+                var api;
                 this._skip = 0;
                 var isAscending = true;
                 if (sortElement.className.search("active") >= 0) {
@@ -677,11 +678,21 @@ after the list became visible again. e.g.
 
                 this._defaultSorting = sortElement.getAttribute("data-value");
                 if (this._isFiltered) {
-                    this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
+                    if (this.filterResultsApi.indexOf('?') === -1) {
+                        api = this.filterResultsApi + '?';
+                    } else {
+                        api = this.filterResultsApi + '&';
+                    }
+                    this.$.applyFilterCall.url = api + this._defaultSorting + this.sortBy;
                     this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
                     this.$.applyFilterCall.generateRequest();
                 } else {
-                    this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
+                    if (this.dataApi.indexOf('?') === -1) {
+                        api = this.dataApi + '?';
+                    } else {
+                        api = this.dataApi + '&';
+                    }
+                    this.$.dataCall.url = api + this._defaultSorting + this.sortBy;
                     this.$.dataCall.generateRequest();
                 }
                 this._isSorted = true;

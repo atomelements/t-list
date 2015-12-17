@@ -84,12 +84,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <body unresolved>
     <t-list 
-        data-api="results.json"
-        filter-api="filter.json"
-        token-param="inventories"
-        with-sorting
-        with-filter
-        sort-params='[{"key":"Price","value":"$orderby=minFare%2FFare%2FAmount","default":true},{"key":"Stops","value":"$orderby=TotalStops"},{"key":"Duration","value":"$orderby=duration/journey"}]' auto>
+        data-api="results.json" filter-api="filter.json"
+        token-param="inventories" with-sorting with-filter auto
+        sort-params='[{"key":"Price","value":"$orderby=minFare%2FFare%2FAmount","default":true},{"key":"Stops","value":"$orderby=TotalStops"},{"key":"Duration","value":"$orderby=duration/journey"}]'>
             <template>
                 <t-result-item itinerary="{{item}}"></t-result-item>
             </template>        
