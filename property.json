@@ -14,7 +14,7 @@
                 "value": "filter.json"
             },
             "paginatedApi": {
-                "name": "URL for the filter",
+                "name": "URL for pagination",
                 "type": "string",
                 "value": ""
             }
