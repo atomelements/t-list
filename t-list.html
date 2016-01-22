@@ -98,22 +98,7 @@ after the list became visible again. e.g.
         font-family: var(--primary-font-family, 'Open sans');
     }
     
-    .modal {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-        background: #fff;
-        -webkit-tap-highlight-color: transparent;
-    }
     
-    .modal .header {
-        height: 80px;
-        background-color: black;
-        color: white;
-    }
     
     .sorting {
         background-color: red;
@@ -230,26 +215,15 @@ after the list became visible again. e.g.
                 <div>[[noResultsFoundMessage]]</div>
                 <div><a class="link" on-click="_redirectToPage" >modify search</a></div>
             </div>
-            <div hidden$="[[!_noResultsFiltered]]">
+            <div id="noResultsFilteredCnt" hidden$="[[!_noResultsFiltered]]">
                 <div>[[noResultsFilteredMessage]]</div>
                 <div><a class="link" on-click="_openModal" >modify filter</a> or <a class="link" on-click="_redirectToPage" >modify search</a></div>
             </div>
         </div>
         <div id="listContainer" >
-            <template is="dom-if" if="[[withFilter]]">
-                <div class=" layout horizontal center filter-block" hidden$="[[_noResultsMatched]]">
-                    <span class="total-results">
-                    <span>{{_getFilteredRatio(data.pagingInfo)}}</span>
-                    <span>results</span>
-                    </span>
-                    <span class="flex"></span>
-                    <span>{{_filterCount}}</span>
-                    <iron-icon icon="filter-list" on-click="_openModal"></iron-icon>
-                </div>
-                <div class="modal layout vertical" id="filterModal" hidden>
-                    <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal"></t-filter>
-                </div>
-            </template>
+            <div hidden="[[!withFilter]]">                
+                <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" hidden$="[[_noResultsMatched]]" results-paging-info="[[data.pagingInfo]]"></t-filter>
+            </div>
             <div class="sorting paper-header" hidden$="[[_noResultsMatched]]">
                 <template is="dom-if" if$="[[withSorting]]">
                     <div class=" layout horizontal sorting-btn">
@@ -562,8 +536,7 @@ after the list became visible again. e.g.
                 }
             },
 
-            _closeModal: function (event) {
-                this.$$('#filterModal').hidden = true;
+            _closeModal: function (event) {                
                 Polymer.IronDropdownScrollManager.removeScrollLock(this);
             },
 
@@ -608,8 +581,7 @@ after the list became visible again. e.g.
             _applyFilters: function (event) {
 
                 this._contentLoaded = false;
-                this._skip = 0;
-                this._setFilterCount(event.detail.count);
+                this._skip = 0;                
                 this._list = [];
                 this._filtersApplied = false;
                 if (event.detail.filters != undefined && !event.detail.filters && !event.detail.filters.length == 0)
@@ -629,24 +601,9 @@ after the list became visible again. e.g.
                     this._isFiltering = false;
                     this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
                     this.$.dataCall.generateRequest();
-                }
-                this.$$('#filterModal').hidden = true;
+                }                
                 Polymer.IronDropdownScrollManager.removeScrollLock(this);
-            },
-
-            _setFilterCount: function (count) {
-                switch (count) {
-                    case 0:
-                        this._filterCount = "";
-                        break;
-                    case 1:
-                        this._filterCount = count + " filter applied";
-                        break;
-                    default:
-                        this._filterCount = count + " filters applied";
-
-                }
-            },
+            },            
 
             _sortBy: function (e) {
 
@@ -725,9 +682,18 @@ after the list became visible again. e.g.
                 this._scrollFired = false;
             },
 
-            _openModal: function () {
-                this.$$('#filterModal').hidden = false;
+            _onFilterOpen: function () {                
                 Polymer.IronDropdownScrollManager.pushScrollLock(this);
+            },
+
+            _openModal: function(){
+                this.$.filter.hidden = false;
+                this.$.noResultsFilteredCnt.hidden = true;
+
+                if(!(this.$.filter.appliedFilters.length == 1 && this.$.filter.appliedFilters[0].type == 'Search')){
+                    this.$.filter._openModal();    
+                }                
+                this._onFilterOpen();
             },
 
             _getNextDataSet: function () {
@@ -754,11 +720,6 @@ after the list became visible again. e.g.
 
             _getPaginationApi: function () {
                 return this.dataApi + "&$skip=" + this._skip;
-            },
-
-            _getFilteredRatio: function (pagingInfo) {
-                if (pagingInfo != undefined)
-                    return pagingInfo.filteredCount + "/" + pagingInfo.total;
             },
 
             _hideList: function (noResultFound) {
