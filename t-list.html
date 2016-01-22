@@ -209,22 +209,12 @@ after the list became visible again. e.g.
         color:blue;
     }
     </style>
-    <template>
-        <div class="error-message padding-10" hidden$="[[!_noResultsMatched]]">
-            <div hidden$="[[!_noResultFound]]">
-                <div>[[noResultsFoundMessage]]</div>
-                <div><a class="link" on-click="_redirectToPage" >modify search</a></div>
-            </div>
-            <div id="noResultsFilteredCnt" hidden$="[[!_noResultsFiltered]]">
-                <div>[[noResultsFilteredMessage]]</div>
-                <div><a class="link" on-click="_openModal" >modify filter</a> or <a class="link" on-click="_redirectToPage" >modify search</a></div>
-            </div>
-        </div>
+    <template>        
         <div id="listContainer" >
             <div hidden="[[!withFilter]]">                
-                <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" hidden$="[[_noResultsMatched]]" results-paging-info="[[data.pagingInfo]]"></t-filter>
+                <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]"></t-filter>
             </div>
-            <div class="sorting paper-header" hidden$="[[_noResultsMatched]]">
+            <div class="sorting paper-header" id="sortCntr">
                 <template is="dom-if" if$="[[withSorting]]">
                     <div class=" layout horizontal sorting-btn">
                         <template is="dom-repeat" items="{{sortParams}}" has-scroller="false">
@@ -235,7 +225,21 @@ after the list became visible again. e.g.
                     </div>
                 </template>
             </div>
-            <div class="error-message padding-horizontal-10" hidden$="[[_noResultsMatched]]">[[note]]</div>
+            <div class="error-message padding-10" hidden$="[[!_noResultsMatched]]">
+                <div hidden$="[[!_noResultFound]]">
+                    <div>[[noResultsFoundMessage]]</div>
+                    <div><a class="link" on-click="_redirectToPage" >modify search</a></div>
+                </div>
+                <div hidden$="[[!_noResultsFiltered]]">
+                    <div>[[noResultsFilteredMessage]]</div>
+                    <div><a class="link" on-click="_showFilters" >modify filter</a> or <a class="link" on-click="_redirectToPage" >modify search</a></div>
+                </div>
+                <div  hidden$="[[!_noResultsFilteredForSearchTerm]]">
+                    <div>[[_noResultsFilteredForSearchTermMessage]]</div>
+                    <div>Modify the search term or <a class="link" on-click="_resetSearchFilter" >reset.</a></div>
+                </div>
+            </div>
+            <!-- <div class="error-message padding-horizontal-10" hidden$="[[_noResultsMatched]]">[[note]]</div> -->
             <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
                 <t-loader id="contentLoader" active="{{!_contentLoaded}}"></t-loader>
             </div>
@@ -313,6 +317,11 @@ after the list became visible again. e.g.
                     value: false
                 },
 
+                _noResultsFilteredForSearchTerm: {
+                    type: Boolean,
+                    value: false
+                },
+
                 _noResultsMatched: {
                     type: Boolean,
                     value: false
@@ -322,6 +331,13 @@ after the list became visible again. e.g.
                     type: String,
                     value: 'We could not find any flights for the filters you have applied.'
                 },
+
+                noResultsFilteredForSearchTermMessage:{
+                    type: String,
+                    value: 'We could not find any itineraries containing \'SEARCHTERM\’'
+                },
+
+
 
                 _filtersApplied: Boolean,
 
@@ -465,11 +481,6 @@ after the list became visible again. e.g.
                     value: false
                 },
 
-                _filterCount: {
-                    type: String,
-                    value: ""
-                },
-
                 _defaultSorting: {
                     type: String,
                     value: ""
@@ -602,6 +613,11 @@ after the list became visible again. e.g.
                     this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
                     this.$.dataCall.generateRequest();
                 }                
+
+                this._noResultsMatched = false;
+                this.$.filter._showHeader();
+                this.$.sortCntr.hidden = false;
+                
                 Polymer.IronDropdownScrollManager.removeScrollLock(this);
             },            
 
@@ -664,9 +680,21 @@ after the list became visible again. e.g.
                     list = this.data[this.tokenParam];
                 }
                 if (!this.data.status.isSuccessful || list === null || list.length === 0) {
-                    this.noResultFound = true;
-                    if (this._filtersApplied && this._list.length === 0)
-                        this._noResultsFiltered = true;
+                    this.noResultFound = true; //public api
+                    if (this._filtersApplied && this._list.length === 0){
+                        var hasSearchFilter = false;
+                        this.$.filter.appliedFilters.forEach(function(item){
+                            if(item.type == 'Search'){
+                                hasSearchFilter = true;
+                            }
+                        });
+                        if(hasSearchFilter){
+                            this._noResultsFilteredForSearchTerm = true;
+                            this._noResultsFilteredForSearchTermMessage = this.noResultsFilteredForSearchTermMessage.replace('SEARCHTERM', this.$.filter.searchVal);
+                        }
+                        else                            
+                            this._noResultsFiltered = true;
+                    }
                     else {
                         if (this._list.length === 0)
                             this._noResultFound = true;
@@ -675,8 +703,17 @@ after the list became visible again. e.g.
                 else {
                     this._noResultFound = false;
                     this._noResultsFiltered = false;
+                    this._noResultsFilteredForSearchTerm = false;
                 }
-                this._noResultsMatched = this._noResultsFiltered || this._noResultFound;
+
+                this._noResultsMatched = this._noResultsFiltered || this._noResultFound || this._noResultsFilteredForSearchTerm;
+                if(this._noResultsMatched && !this._noResultsFilteredForSearchTerm){
+                    this.$.filter._hideHeader();
+                    this.$.sortCntr.hidden = true;
+                }else{
+                    this.$.filter._showHeader();
+                    this.$.sortCntr.hidden = false;
+                }
                 this._contentLoaded = true;
                 this.fire('list-population');
                 this._scrollFired = false;
@@ -686,14 +723,13 @@ after the list became visible again. e.g.
                 Polymer.IronDropdownScrollManager.pushScrollLock(this);
             },
 
-            _openModal: function(){
-                this.$.filter.hidden = false;
-                this.$.noResultsFilteredCnt.hidden = true;
-
-                if(!(this.$.filter.appliedFilters.length == 1 && this.$.filter.appliedFilters[0].type == 'Search')){
-                    this.$.filter._openModal();    
-                }                
+            _showFilters: function(){                
+                this.$.filter._openModal();             
                 this._onFilterOpen();
+            },
+
+            _resetSearchFilter: function(){
+                this.$.filter.searchVal = '';
             },
 
             _getNextDataSet: function () {
@@ -720,10 +756,6 @@ after the list became visible again. e.g.
 
             _getPaginationApi: function () {
                 return this.dataApi + "&$skip=" + this._skip;
-            },
-
-            _hideList: function (noResultFound) {
-                return this._noResultFound || this._noResultsFiltered;
             },
 
             _getSortingClass: function (item) {
