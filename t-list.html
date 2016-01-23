@@ -595,7 +595,7 @@ after the list became visible again. e.g.
                 this._skip = 0;                
                 this._list = [];
                 this._filtersApplied = false;
-                if (event.detail.filters != undefined && !event.detail.filters && !event.detail.filters.length == 0)
+                if (event.detail.filters && event.detail.filters.length)
                     this._isFiltered = true;
                 else
                     this._isFiltered = false;
