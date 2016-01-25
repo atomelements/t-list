@@ -683,11 +683,12 @@ after the list became visible again. e.g.
                     this.noResultFound = true; //public api
                     if (this._filtersApplied && this._list.length === 0){
                         var hasSearchFilter = false;
-                        this.$.filter.appliedFilters.forEach(function(item){
-                            if(item.type == 'Search' && item.value){
-                                hasSearchFilter = true;
-                            }
-                        });
+                        var recentFilter = this.$.filter.appliedFilters[this.$.filter.appliedFilters.length - 1];
+                        
+                        if(recentFilter.type == 'Search' && recentFilter.value){
+                            hasSearchFilter = true;
+                        }
+                        
                         if(hasSearchFilter){
                             this._noResultsFilteredForSearchTerm = true;
                             this._noResultsFilteredForSearchTermMessage = this.noResultsFilteredForSearchTermMessage.replace('SEARCHTERM', this.$.filter.searchVal);
