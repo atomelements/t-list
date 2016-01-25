@@ -684,7 +684,7 @@ after the list became visible again. e.g.
                     if (this._filtersApplied && this._list.length === 0){
                         var hasSearchFilter = false;
                         this.$.filter.appliedFilters.forEach(function(item){
-                            if(item.type == 'Search'){
+                            if(item.type == 'Search' && item.value){
                                 hasSearchFilter = true;
                             }
                         });
