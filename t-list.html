@@ -241,8 +241,7 @@ after the list became visible again. e.g.
             <template is="dom-if" if="[[withFilter]]">
                 <div class=" layout horizontal center filter-block" hidden$="[[_noResultsMatched]]">
                     <span class="total-results">
-                    <span>{{_getFilteredRatio(data.pagingInfo)}}</span>
-                    <span>results</span>
+                        {{_getFilteredRatio(data.pagingInfo)}}
                     </span>
                     <span class="flex"></span>
                     <span>{{_filterCount}}</span>
@@ -760,7 +759,7 @@ after the list became visible again. e.g.
 
             _getFilteredRatio: function (pagingInfo) {
                 if (pagingInfo != undefined)
-                    return pagingInfo.filteredCount + "/" + pagingInfo.total;
+                    return pagingInfo.filteredCount + "/" + pagingInfo.total + " results";
             },
 
             _hideList: function (noResultFound) {
