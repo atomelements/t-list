@@ -264,7 +264,7 @@ after the list became visible again. e.g.
             </div>
             <div class="error-message padding-horizontal-10" hidden$="[[_noResultsMatched]]">[[note]]</div>
             <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
-                <t-loader id="contentLoader" active="{{!_contentLoaded}}"></t-loader>
+                <t-loader id="contentLoader" active></t-loader>
             </div>
             <div class="layout vertical" style="height:100%">
                 <!--  selection-enabled has been removed to handle behaviour for Iphone-6-->
@@ -272,11 +272,9 @@ after the list became visible again. e.g.
                     <content></content>
                 </t-simple-list>
             </div>
-            <template is="dom-if" if="[[ajaxLoaderContainer]]">
-                <div id="ajaxLoaderContainer" class="horizontal layout flex center-justified padding-horzintal-10">
-                    <t-loader id="ajaxLoader" active></t-loader>
-                </div>
-            </template>
+            <div id="ajaxLoaderContainer" hidden$="[[!ajaxLoaderContainer]]" class="horizontal layout flex center-justified padding-horzintal-10">
+                <t-loader id="ajaxLoader" active></t-loader>
+            </div>
         </div>
         <iron-ajax id="dataCall" method="GET" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
         <iron-ajax id="applyFilterCall" headers='{"accept": "application/json"}' content-type="application/json" method="POST" handle-as="json" url="{{filterResultsApi}}" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
