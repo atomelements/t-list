@@ -98,17 +98,7 @@ after the list became visible again. e.g.
         font-family: var(--primary-font-family, 'Open sans');
     }
     
-    
-    
-    .sorting {
-        background-color: red;
-    }
-    
-    .padding-horizontal-10 {
-        padding: 0 10px;
-    }
-    
-    .padding-10 {
+    .section-small {
         padding: 10px ;
     }    
     .sorting .sorting-btn {
@@ -156,7 +146,7 @@ after the list became visible again. e.g.
         background-color: #f5f5f5;
     }
     
-    .params a iron-icon {
+    .params iron-icon {
         -webkit-transition: 0.3s all ease;
         -moz-transition: 0.3s all ease;
         -ms-transition: 0.3s all ease;
@@ -176,18 +166,13 @@ after the list became visible again. e.g.
         margin-top: -5px;
     }
     
-    .params a.active iron-icon {
+    .params .active iron-icon {
         display: -ms-inline-flexbox;
         display: -webkit-inline-flex;
         display: inline-flex;
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-        transform: rotate(90deg);
     }
     
-    .params a.active.desc iron-icon {
+    .params .active.desc iron-icon {
         -webkit-transform: rotate(-90deg);
         -moz-transform: rotate(-90deg);
         -ms-transform: rotate(-90deg);
@@ -195,10 +180,6 @@ after the list became visible again. e.g.
         transform: rotate(-90deg);
     }
     
-    .params a.active {
-        color: #000000;
-        background: #ffffff;
-    }
     #ajaxLoaderContainer{
         padding: 10px 0;
      } 
@@ -227,7 +208,7 @@ after the list became visible again. e.g.
                     </div>
                 </template>
             </div>
-            <div class="error-message padding-10" hidden$="[[!_noResultsMatched]]">
+            <div class="error-message section-small" hidden$="[[!_noResultsMatched]]">
                 <div hidden$="[[!_noResultFound]]">
                     <div>[[noResultsFoundMessage]]</div>
                     <div><a class="link" on-click="_redirectToPage" >modify search</a></div>
@@ -241,7 +222,7 @@ after the list became visible again. e.g.
                     <div>Modify the search term or <a class="link" on-click="_resetSearchFilter" >reset.</a></div>
                 </div>
             </div>
-            <!-- <div class="error-message padding-horizontal-10" hidden$="[[_noResultsMatched]]">[[note]]</div> -->
+            <!-- <div class="error-message " hidden$="[[_noResultsMatched]]">[[note]]</div> -->
             <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
                 <t-loader id="contentLoader" active></t-loader>
             </div>
