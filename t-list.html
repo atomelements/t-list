@@ -208,7 +208,7 @@ after the list became visible again. e.g.
     }
 
     .link {
-        color:blue;
+        color: var(--link-color,#0098ff);
     }
     </style>
     <template>        
@@ -712,7 +712,9 @@ after the list became visible again. e.g.
                 if(this._noResultsMatched && !this._noResultsFilteredForSearchTerm){
                     this.$.filter._hideHeader();
                     this.$.sortCntr.hidden = true;
-                }else{
+                } else if(this._noResultsFilteredForSearchTerm){
+                    this.$.sortCntr.hidden = true;
+                } else{
                     this.$.filter._showHeader();
                     this.$.sortCntr.hidden = false;
                 }
@@ -731,7 +733,7 @@ after the list became visible again. e.g.
             },
 
             _resetSearchFilter: function(){
-                this.$.filter.searchVal = '';
+                this.$.filter._removeSearchFilter();
             },
 
             _getNextDataSet: function () {
