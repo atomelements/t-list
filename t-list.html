@@ -222,10 +222,13 @@ after the list became visible again. e.g.
                     <div>Modify the search term or <a class="link" on-click="_resetSearchFilter" >reset.</a></div>
                 </div>
             </div>
-            <!-- <div class="error-message " hidden$="[[_noResultsMatched]]">[[note]]</div> -->
-            <div class="absolute horizontal layout center-justified" hidden$="{{_contentLoaded}}">
+            <template is="dom-if" if="{{!_contentLoaded}}">
+                <div class="absolute horizontal layout center-justified">
                 <t-loader id="contentLoader" active></t-loader>
             </div>
+            </template>
+            <!-- <div class="error-message " hidden$="[[_noResultsMatched]]">[[note]]</div> -->
+            
             <div class="layout vertical" style="height:100%">
                 <!--  selection-enabled has been removed to handle behaviour for Iphone-6-->
                 <t-simple-list id="list" selection-enabled items="{{_list}}" class="flex" on-selected-item-changed="_selectionChanged">
