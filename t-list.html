@@ -239,7 +239,7 @@ after the list became visible again. e.g.
                 <t-loader id="ajaxLoader" active></t-loader>
             </div>
         </div>
-        <iron-ajax id="dataCall" method="GET" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
+        <iron-ajax id="dataCall" method="[[dataCallMethod]]" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
         <iron-ajax id="applyFilterCall" headers='{"accept": "application/json"}' content-type="application/json" method="POST" handle-as="json" url="{{filterResultsApi}}" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
     </template>
 </dom-module>
@@ -490,6 +490,11 @@ after the list became visible again. e.g.
                 filterSearchLabel:{
                     type:String,
                     value:'Search hotel name'
+                },
+
+                dataCallMethod:{
+                    type:String,
+                    value:'GET'
                 }
             },
 
