@@ -195,7 +195,7 @@ after the list became visible again. e.g.
     <template>        
         <div id="listContainer" >
             <div hidden="[[!withFilter]]">                
-                <t-filter opened id="filter" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]"></t-filter>
+                <t-filter opened id="filter" search-label="[[searchLabel]]" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]"></t-filter>
             </div>
             <div class="sorting paper-header" id="sortCntr">
                 <template is="dom-if" if$="[[withSorting]]">
@@ -485,6 +485,11 @@ after the list became visible again. e.g.
                     type: Object,
                     value: null,
                     notify: true
+                },
+
+                searchLabel:{
+                    type:String,
+                    value:'Search hotel name'
                 }
             },
 
