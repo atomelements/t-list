@@ -240,7 +240,7 @@ after the list became visible again. e.g.
             </div>
         </div>
         <iron-ajax id="dataCall" method="[[dataCallMethod]]" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
-        <iron-ajax id="applyFilterCall" headers='{"accept": "application/json"}' content-type="application/json" method="POST" handle-as="json" url="{{filterResultsApi}}" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
+        <iron-ajax id="applyFilterCall" headers='{"accept": "application/json"}' content-type="application/json" method="[[filterCallMethod]]" handle-as="json" url="{{filterResultsApi}}" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
     </template>
 </dom-module>
 <script>
@@ -500,7 +500,12 @@ after the list became visible again. e.g.
                 dataCallMethod:{
                     type:String,
                     value:'GET'
-                }
+                },
+
+                filterCallMethod:{
+                    type:String,
+                    value:'POST'
+                }                
             },
 
 
