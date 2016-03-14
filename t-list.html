@@ -211,11 +211,11 @@ after the list became visible again. e.g.
             <div class="error-message section-small" hidden$="[[!_noResultsMatched]]">
                 <div hidden$="[[!_noResultFound]]">
                     <div>[[noResultsFoundMessage]]</div>
-                    <div><a class="link" on-click="_redirectToPage" >modify search</a></div>
+                    <div><a class="link" on-click="_redirectToPage" >[[redirectLinkText]]</a></div>
                 </div>
                 <div hidden$="[[!_noResultsFiltered]]">
                     <div>[[noResultsFilteredMessage]]</div>
-                    <div><a class="link" on-click="_showFilters" >modify filter</a> or <a class="link" on-click="_redirectToPage" >modify search</a></div>
+                    <div><a class="link" on-click="_showFilters" >modify filter</a> or <a class="link" on-click="_redirectToPage" >[[redirectLinkText]]</a></div>
                 </div>
                 <div  hidden$="[[!_noResultsFilteredForSearchTerm]]">
                     <div>[[_noResultsFilteredForSearchTermMessage]]</div>
@@ -296,7 +296,19 @@ after the list became visible again. e.g.
                     value: 'filters'
                 },
 
+                /**
+                 * The redirect link which appears when there is no result to go to search 
+                 * page usually.
+                 */
                 redirectLink: String,
+
+                /**
+                 * The search term is the link which appears when there is no result.
+                 */
+                redirectLinkText: {
+                    type: String,
+                    value:'modify search'
+                },
 
                 _noResultFound: {
                     type: Boolean,
