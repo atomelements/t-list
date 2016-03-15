@@ -329,7 +329,8 @@ after the list became visible again. e.g.
                  */
                 dataApi: {
                     type: String,
-                    value: ""
+                    value: "",
+                    observer: "_dataApiChanged"
                 },
 
                 /**
@@ -523,6 +524,8 @@ after the list became visible again. e.g.
             },
 
             _dataApiChanged: function () {
+                var component = this;
+
                 if (this.dataApi != undefined && this.dataApi != "" && this.auto) {
                     this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + "+asc";
                     this._isSorted = true;
