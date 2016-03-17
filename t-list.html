@@ -469,6 +469,15 @@ after the list became visible again. e.g.
                     value: 0
                 },
 
+                skipCount: {
+                    type: Number,
+                    value: 20
+                },
+
+                top: {
+                    type: Number
+                },
+
                 _filterSkip: {
                     type: Number,
                     value: 0
@@ -789,19 +798,25 @@ after the list became visible again. e.g.
 
                 this.ajaxLoaderContainer =true;
                 if (this._isFiltering) {
-                    this._skip = this._skip + 20;
+                    this._skip = this._skip + this.skipCount;
                     this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
+                    if(this.top){
+                        this.$.applyFilterCall.url += "&$top=" + this.top;
+                    }
                     this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
                     this.$.applyFilterCall.generateRequest();
                 } else {
                     if (!this._isFiltered) {
-                        this._skip = this._skip + 20;
+                        this._skip = this._skip + this.skipCount;
                         this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy + "&$skip=" + this._skip;
+                        if(this.top){
+                            this.$.dataCall.url += "&$top=" + this.top;
+                        }
                         this.$.dataCall.generateRequest();
                         this._scrollFired = true;
                     } else {
                         this._skip = 0;
-                        this._filterSkip = this._filterSkip + 20;
+                        this._filterSkip = this._filterSkip + this.skipCount;
                     }
                 }
             },
