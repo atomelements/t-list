@@ -592,6 +592,7 @@ after the list became visible again. e.g.
                     this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') !=-1 ?  "&" : "?") + this._defaultSorting + "+asc";
                     this._isSorted = true;
                     this.$.dataCall.generateRequest();
+                    this._scrollFired = true;
                 }
             },
 
@@ -619,6 +620,7 @@ after the list became visible again. e.g.
                     this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + "+asc";
                     this._isSorted = true;
                     this.$.dataCall.generateRequest();
+                    this._scrollFired = true;
                 }
             },
 
@@ -686,6 +688,7 @@ after the list became visible again. e.g.
                     this._isFiltering = false;
                     this.$.dataCall.url = this.dataApi + "&" + this._defaultSorting + this.sortBy;
                     this.$.dataCall.generateRequest();
+                    this._scrollFired = true;
                 }                
 
                 this._noResultsMatched = false;
@@ -741,6 +744,7 @@ after the list became visible again. e.g.
                     }
                     this.$.dataCall.url = api + this._defaultSorting + this.sortBy;
                     this.$.dataCall.generateRequest();
+                    this._scrollFired = true;
                 }
                 this._isSorted = true;
                 this._contentLoaded = false;
@@ -820,6 +824,7 @@ after the list became visible again. e.g.
                     }
                     this.$.applyFilterCall.body = JSON.stringify(this.$$('#filter').appliedFilters);
                     this.$.applyFilterCall.generateRequest();
+                    this._scrollFired = true;
                 } else {
                     if (!this._isFiltered) {
                         this._skip = this._skip + this.skipCount;
