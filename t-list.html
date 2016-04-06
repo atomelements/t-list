@@ -195,7 +195,7 @@ after the list became visible again. e.g.
     <template>        
         <div id="listContainer" >
             <div hidden="[[!withFilter]]">                
-                <t-filter opened excluded-filters= "[[excludedFilters]]"  filter-response-param="[[filterResponseParam]]" id="filter" search-label="[[filterSearchLabel]]" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]" min-start-date="[[minStartDate]]" min-end-date="[[minEndDate]]"></t-filter>
+                <t-filter opened filter-icon="[[filterIcon]]" search-icon="[[searchIcon]]" excluded-filters="[[excludedFilters]]"  filter-response-param="[[filterResponseParam]]" id="filter" search-label="[[filterSearchLabel]]" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]" min-start-date="[[minStartDate]]" min-end-date="[[minEndDate]]"></t-filter>
             </div>
             <div class="sorting paper-header" id="sortCntr">
                 <template is="dom-if" if$="[[withSorting]]">
@@ -554,6 +554,19 @@ after the list became visible again. e.g.
                 minEndDate:{
                     type:Boolean,
                     value:false
+                },
+
+
+                /*Filter icon to be replaced and given value*/
+                filterIcon: {
+                    type: String,
+                    value: 'filter-list'
+                },
+
+                /*search icon to be replaced and given value*/
+                searchIcon: {
+                    type: String,
+                    value: 'search'
                 }
             },
 
