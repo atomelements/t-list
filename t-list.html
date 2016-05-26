@@ -589,7 +589,7 @@ after the list became visible again. e.g.
                 this._setupInfiniteScroll();
 
                 if (this.dataApi != undefined && this.dataApi != '') {
-                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') !=-1 ?  "&" : "?") + this._defaultSorting + "+asc";
+                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') !=-1 ?  "&" : "?") + this._defaultSorting + this.sortBy;
                     this._isSorted = true;
                     this.$.dataCall.generateRequest();
                     this._scrollFired = true;
@@ -611,13 +611,13 @@ after the list became visible again. e.g.
                 });
             },
 
-            _dataApiChanged: function () {
+            _dataApiChanged: function () {  
                 var component = this;
 
                 if (!this.attachedHit) return;
 
                 if (this.dataApi != undefined && this.dataApi != "" && this.auto) {
-                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + "+asc";
+                    this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') > -1 ? '&' : '?') + component._defaultSorting + this.sortBy;
                     this._isSorted = true;
                     this.$.dataCall.generateRequest();
                     this._scrollFired = true;
@@ -703,8 +703,16 @@ after the list became visible again. e.g.
                 var sortElement = e.currentTarget;
                 var api;
                 this._skip = 0;
-                var isAscending = true;
-                if (sortElement.className.search("active") >= 0) {
+                var isAscending = this.sortBy === "+asc";
+
+                if (sortElement.className.search("active") < 0) {
+                    isAscending = true;
+                    sortElement.classList.remove("desc");
+                    this.sortParams.forEach(function (param) {
+                        this.$$('#' + param.key).classList.remove("active");
+                    },this);
+                    sortElement.classList.add("active");
+                }else{                        
                     if (sortElement.className.search("desc") >= 0) {
                         isAscending = true;
                         sortElement.classList.remove("desc");
@@ -712,13 +720,6 @@ after the list became visible again. e.g.
                         isAscending = false;
                         sortElement.classList.add("desc");
                     }
-                } else {
-                    var component = this;
-                    this.sortParams.forEach(function (param) {
-                        component.$$('#' + param.key).classList.remove("active");
-                    });
-                    sortElement.classList.add("active");
-                    isAscending = true;
                 }
 
                 if (isAscending)
@@ -846,8 +847,15 @@ after the list became visible again. e.g.
             },
 
             _getSortingClass: function (item) {
-                if (item.default)
-                    return "active";
+
+                if (item.default){
+                    var sortingClass = "active";                    
+                    if (this.sortBy === "+desc") {
+                        sortingClass += " desc";
+                    }
+                    return sortingClass;
+                }
+
                 return false;
             },
 
