@@ -342,7 +342,15 @@ after the list became visible again. e.g.
                     value: 'We could not find any itineraries containing \'SEARCHTERM\’'
                 },
 
+                defaultFilters:{
+                    type: Array,
+                    value: []
+                },
 
+                updateFilters: {
+                    type: Boolean,
+                    value: false
+                },
 
                 _filtersApplied: Boolean,
 
@@ -665,18 +673,27 @@ after the list became visible again. e.g.
 
             },
 
-            _applyFilters: function (event) {
+            _updateFilters: function () {
+                this.data.pagingInfo.total = this.data.inventories.length;
+                this.$.filter._getFilteredRatio(this.data.pagingInfo);
+            },
 
+            _applyFilters: function (event) {
+                var filters = event.detail.filters.push.apply(event.detail.filters, this.defaultFilters);
+                this.onApplyFilters(event.detail.filters);
+            },            
+
+            onApplyFilters: function(filters) {
                 this._contentLoaded = false;
                 this._skip = 0;                
                 this._list = [];
                 this._filtersApplied = false;
-                if (event.detail.filters && event.detail.filters.length)
+                if (filters && filters.length)
                     this._isFiltered = true;
                 else
                     this._isFiltered = false;
 
-                var filter = event.detail.filters;
+                var filter = filters;
 
                 if (filter.length > 0) {
                     this._isFiltering = true;
@@ -696,7 +713,7 @@ after the list became visible again. e.g.
                 this.$.sortCntr.hidden = false;
                 
                 Polymer.IronDropdownScrollManager.removeScrollLock(this);
-            },            
+            },
 
             _sortBy: function (e) {
 
@@ -752,6 +769,11 @@ after the list became visible again. e.g.
             },
 
             _listPopulated: function () {
+
+                if (this.updateFilters) {
+                    this._updateFilters();
+                }
+
                 var list = [];
                 if (this.tokenParam === '') {
                     list = this.data;
