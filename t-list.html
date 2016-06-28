@@ -678,7 +678,6 @@ after the list became visible again. e.g.
                     this.data.inventories[0].isFirstItinerary = true;
                 }
                 this.data.pagingInfo.total = this.data.inventories.length;
-                this.$.filter._getFilteredRatio(this.data.pagingInfo);
             },
 
             _applyFilters: function (event) {
@@ -776,6 +775,7 @@ after the list became visible again. e.g.
                 if (this.updateFilters) {
                     this._updateFilters();
                 }
+                this.$.filter._getFilteredRatio(this.data.pagingInfo);
 
                 var list = [];
                 if (this.tokenParam === '') {
