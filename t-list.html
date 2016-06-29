@@ -674,6 +674,11 @@ after the list became visible again. e.g.
             },
 
             _updateFilters: function () {
+
+                if (!this.data) {
+                    return;
+                }
+
                 if (this.data.inventories && this.data.inventories.length) {
                     this.data.inventories[0].isFirstItinerary = true;
                 }
