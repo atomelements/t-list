@@ -675,13 +675,11 @@ after the list became visible again. e.g.
 
             _updateFilters: function () {
 
-                if (!this.data) {
+                if (!this.data.inventories || !this.data.inventories.length) {
                     return;
                 }
-
-                if (this.data.inventories && this.data.inventories.length) {
-                    this.data.inventories[0].isFirstItinerary = true;
-                }
+                
+                this.data.inventories[0].isFirstItinerary = true;
                 this.data.pagingInfo.total = this.data.inventories.length;
             },
 
