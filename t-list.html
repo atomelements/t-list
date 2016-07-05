@@ -581,13 +581,13 @@ after the list became visible again. e.g.
             },
 
 
-        attached: function() {            
-            this.attachedHit = true;
-            if (this.auto)
-                this.generateList();
-        },
+            attached: function() {            
+                this.attachedHit = true;
+                if (this.auto)
+                    this.generateList();
+            },
 
-        generateList: function() {
+            generateList: function() {
                 var component = this;
                 this.sortParams.forEach(function (param) {
                     if (param.default == true)
