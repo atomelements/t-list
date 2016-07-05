@@ -681,6 +681,178 @@ after the list became visible again. e.g.
                 
                 this.data.inventories[0].isFirstItinerary = true;
                 this.data.pagingInfo.total = this.data.inventories.length;
+
+
+                //Get filters
+                var filters = this.$.filter.response;
+
+                //Map filters with inventory objects
+                var filtersMapping = this._getInverntoryObjectsVsFilterTypeMapping();
+                var buildFilters = {};
+                var _self = this;
+
+                //Find new values of filters from current results set
+                this.data.inventories.forEach(function(inventory){
+                    for (var filterItem in filtersMapping) {
+                        var mappedData = filtersMapping[filterItem];
+                        if (mappedData.hierarchy) {
+                            var context = _self._traverseToHierarchy(mappedData.hierarchy, inventory)
+                        } else {
+                            var context = inventory;
+                        }
+                        if (mappedData.executeFunctionName) {
+                            var totalFareComponent = _self._executeFunctionByName(mappedData.executeFunctionName, _self, context, mappedData, buildFilters);
+                        }
+                    }
+                });
+
+                
+                //Pass on new filters to t-filters
+            },
+
+            _executeFunctionByName: function (functionName, context /*, args */) {
+                var args = [].slice.call(arguments).splice(2);
+                var namespaces = functionName.split(".");
+                var func = namespaces.pop();
+                for(var i = 0; i < namespaces.length; i++) {
+                    context = context[namespaces[i]];
+                }
+                return context[func].apply(context, args);
+            },
+
+            _getInverntoryObjectsVsFilterTypeMapping: function () {
+                var productType = this.productType || "Car";
+                //FIXME : remove default product type from here
+
+                var carFiltersMapping = {
+                    "Price" : {
+                        objectNames: ["components"],
+                        hierarchy: "fare",
+                        executeFunctionName: "_buildPriceFilter"
+                    },
+                    "Location" : {
+                        objectNames: ["atAirport", "inTerminal"],
+                        hierarchy: "pickupInfo",
+                        executeFunctionName: "_buildCarLocationFilter"
+                    },
+                    "Brand" : {
+                        objectNames: ["code"],
+                        hierarchy: "brand",
+                        executeFunctionName: "_buildCarBrandFilter"
+                    },
+                    "Features" : {
+                        objectNames: ["airConditioning", "transmission", "mileage"],
+                        executeFunctionName: "_buildCarFeaturesFilter"
+                    }
+                }
+
+                if (productType === "Car") {
+                    return carFiltersMapping;
+                }
+            },
+
+            _buildPriceFilter: function (context, mappedData, buildFilters) {
+                
+                totalFareComponent = context[mappedData.objectNames[0]].filter(function(component){
+                    return component.type == "TotalFare";
+                })[0];
+
+                if (!buildFilters.Price) {
+                    buildFilters.Price = {};
+                }
+
+                if (totalFareComponent) {
+                    if (buildFilters.Price.minPrice && buildFilters.Price.maxPrice) {
+                        if (buildFilters.Price.minPrice.value > totalFareComponent.money.amount) {
+                            buildFilters.Price.minPrice.value = totalFareComponent.money.amount;
+                            buildFilters.Price.minPrice.displayValue = totalFareComponent.money.displayAmount;
+                        }
+                        if (buildFilters.Price.maxPrice.value < totalFareComponent.money.amount) {
+                            buildFilters.Price.maxPrice.value = totalFareComponent.money.amount;
+                            buildFilters.Price.maxPrice.displayValue = totalFareComponent.money.displayAmount;
+                        }
+                    } else {
+                        buildFilters.Price.minPrice = {
+                            displayValue: totalFareComponent.money.displayAmount,
+                            value: totalFareComponent.money.amount
+                        };
+                        buildFilters.Price.maxPrice = {
+                            displayValue: totalFareComponent.money.displayAmount,
+                            value: totalFareComponent.money.amount
+                        };
+                    }
+                }
+            },
+
+            _buildCarLocationFilter: function (context, mappedData, buildFilters) {
+                //car locations are in terminal, at airport which are provided in itinerary level
+                
+                if (!buildFilters.Location) {
+                    buildFilters.Location = {
+                        inTerminal: 0,
+                        offTerminal: 0,
+                        atAirport: 0,
+                        offAirport: 0
+                    }
+                }
+
+                mappedData.objectNames.forEach(function(objectName) {
+                    if (context[objectName]) {
+                        buildFilters.Location[objectName]++ ;
+                    } else if (objectName == "inTerminal"){
+                        buildFilters.Location.offTerminal++ ;
+                    } else if (objectName == "atAirport"){
+                        buildFilters.Location.offAirport++ ;
+                    }
+                });
+            },
+
+            _buildCarBrandFilter: function (context, mappedData, buildFilters) {
+                if (!buildFilters.Brand) {
+                    buildFilters.Brand = {};
+                }
+
+                if (!buildFilters.Brand[context[mappedData.objectNames[0]]]) {
+                    buildFilters.Brand[context[mappedData.objectNames[0]]] = 1;
+                } else {
+                    buildFilters.Brand[context[mappedData.objectNames[0]]]++ ;
+                }
+            },
+
+            _buildCarFeaturesFilter: function (context, mappedData, buildFilters) {
+                if (!buildFilters.Features) {
+                    buildFilters.Features = {
+                        airConditioning: 0,
+                        transmission: 0,
+                        mileage: 0
+                    }
+                }
+
+                mappedData.objectNames.forEach(function(objectName) {
+                    if (objectName == "airConditioning") {
+                        if (context[objectName] && typeof context[objectName] == "string" && context[objectName].toLowerCase() == "yes") {
+                            buildFilters.Features[objectName] ++;
+                        }
+                    } else if(objectName == "transmission"){
+                        if (context[objectName] && typeof context[objectName] == "string" && context[objectName].toLowerCase() == "automatic") {
+                            buildFilters.Features[objectName] ++;
+                        }
+                    } else if(objectName == "mileage"){
+                        if (context[objectName] && context[objectName].isUnlimited) {
+                            buildFilters.Features[objectName] ++;
+                        }
+                    }
+                });
+            },
+
+            _traverseToHierarchy: function (hierarchy, context) {
+                var namespaces = hierarchy.split(".");
+                if (namespaces) {
+                    for (var i = 0; i < namespaces.length; i++) {
+                        context = context[namespaces[i]];
+                    }
+                }
+                return context;
             },
 
             _applyFilters: function (event) {
