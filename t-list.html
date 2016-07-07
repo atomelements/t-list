@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <link rel="import" href="../t-shared-components/jquery.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="t-update-filter-behavior.html">
 <!--
 
 `t-list` displays a virtual, 'infinite' list. The template inside
@@ -251,6 +252,8 @@ after the list became visible again. e.g.
         Polymer({
 
             is: 't-list',
+
+            behaviors:[TravelNxt.Behaviors.UpdateFiltersBehavior],
 
             properties: {
 
@@ -676,220 +679,28 @@ after the list became visible again. e.g.
             _updateFilters: function () {
 
                 if (!this.data.inventories || !this.data.inventories.length) {
-                    return;
+                    return true;
                 }
                 
                 this.data.inventories[0].isFirstItinerary = true;
                 this.data.pagingInfo.total = this.data.inventories.length;
+                if (this.$.applyFilterCall.body && this.$.applyFilterCall.body.length) {
+                    var inputFilters = JSON.parse(this.$.applyFilterCall.body);
+                }
+                
+                var filters = this.modifyFilters(this.data.inventories, this.$.filter.response.slice(), inputFilters);
 
+                if (!filters || !filters.length) {
+                    return false;
+                }
 
-                //Map filters with inventory objects
-                var filtersMapping = this._getInverntoryObjectsVsFilterTypeMapping();
-                var buildFilters = {};
                 var _self = this;
-
-                //Find new values of filters from current results set
-                for (var i = 0; i < this.data.inventories.length; i++) {
-                    for (var filterItem in filtersMapping) {
-                        var mappedData = filtersMapping[filterItem];
-                        if (mappedData.hierarchy) {
-                            var context = _self._traverseToHierarchy(mappedData.hierarchy, this.data.inventories[i])
-                        } else {
-                            var context = this.data.inventories[i];
-                        }
-                        if (mappedData.executeFunctionName) {
-                            var totalFareComponent = _self._executeFunctionByName(mappedData.executeFunctionName, _self, context, mappedData, buildFilters);
-                        }
-                    }
-                }
-
-                //update Filters existing filters
-                var filters = this.$.filter.response;
-
-                for (var i = 0; i < filters.length; i++) {
-                    for(var filterCategory in buildFilters){
-                        if (filterCategory == filters[i].category) {
-                            if (filters[i].type == "Range") {
-                                filters[i].items[0].value = buildFilters[filterCategory].min.value
-                                filters[i].items[0].displayValue = buildFilters[filterCategory].min.displayValue
-                                filters[i].items[1].value = buildFilters[filterCategory].max.value
-                                filters[i].items[1].displayValue = buildFilters[filterCategory].max.displayValue
-                            } else if(filters[i].type == "Options"){
-                                //Make count of options filter zero
-                                for (var j = 0; j < filters[i].items.length; j++) {
-                                    if (filters[i].items[j].additionalInfo && filters[i].items[j].additionalInfo.length) {
-                                        filters[i].items[j].additionalInfo[0].value = "0";
-                                    }
-                                }
-                                
-                                //Add exact count
-                                for (var j = 0; j < filters[i].items.length; j++) {
-                                    for(var filterLebel in buildFilters[filterCategory]){
-                                        if (filters[i].items[j].label == filterLebel) {
-                                            if (filters[i].items[j].additionalInfo && filters[i].items[j].additionalInfo.length) {
-                                                filters[i].items[j].additionalInfo[0].value = buildFilters[filterCategory][filterLebel];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //Pass on new filters to t-filters
-                _self = this;
                 _self.$.filter.response = null;
                 setTimeout(function () {
                     _self.$.filter.response = filters;
                     _self.$.filter.handleResponse(filters);
                 }, 1000);
-            },
-
-            _executeFunctionByName: function (functionName, context /*, args */) {
-                var args = [].slice.call(arguments).splice(2);
-                var namespaces = functionName.split(".");
-                var func = namespaces.pop();
-                for(var i = 0; i < namespaces.length; i++) {
-                    context = context[namespaces[i]];
-                }
-                return context[func].apply(context, args);
-            },
-
-            _getInverntoryObjectsVsFilterTypeMapping: function () {
-                var productType = this.productType || "Car";
-                //FIXME : remove default product type from here
-
-                var carFiltersMapping = {
-                    "Price" : {
-                        objectNames: ["components"],
-                        hierarchy: "fare",
-                        executeFunctionName: "_buildPriceFilter"
-                    },
-                    "Location" : {
-                        objectNames: ["atAirport", "inTerminal"],
-                        hierarchy: "pickupInfo",
-                        executeFunctionName: "_buildCarLocationFilter"
-                    },
-                    "Brand" : {
-                        objectNames: ["name"],
-                        hierarchy: "brand",
-                        executeFunctionName: "_buildOptionsFilter",
-                        filterName: "Brand"
-                    },
-                    "Features" : {
-                        objectNames: ["airConditioning", "transmission", "mileage"],
-                        executeFunctionName: "_buildCarFeaturesFilter"
-                    }
-                }
-
-                if (productType === "Car") {
-                    return carFiltersMapping;
-                }
-            },
-
-            _buildPriceFilter: function (context, mappedData, buildFilters) {
-                
-                totalFareComponent = context[mappedData.objectNames[0]].filter(function(component){
-                    return component.type == "TotalFare";
-                })[0];
-
-                if (!buildFilters.Price) {
-                    buildFilters.Price = {};
-                }
-
-                if (totalFareComponent) {
-                    if (buildFilters.Price.min && buildFilters.Price.max) {
-                        if (buildFilters.Price.min.value > totalFareComponent.money.amount) {
-                            buildFilters.Price.min.value = totalFareComponent.money.amount;
-                            buildFilters.Price.min.displayValue = totalFareComponent.money.displayAmount;
-                        }
-                        if (buildFilters.Price.max.value < totalFareComponent.money.amount) {
-                            buildFilters.Price.max.value = totalFareComponent.money.amount;
-                            buildFilters.Price.max.displayValue = totalFareComponent.money.displayAmount;
-                        }
-                    } else {
-                        buildFilters.Price.min = {
-                            displayValue: totalFareComponent.money.displayAmount,
-                            value: totalFareComponent.money.amount
-                        };
-                        buildFilters.Price.max = {
-                            displayValue: totalFareComponent.money.displayAmount,
-                            value: totalFareComponent.money.amount
-                        };
-                    }
-                }
-            },
-
-            _buildCarLocationFilter: function (context, mappedData, buildFilters) {
-                //car locations are in terminal, at airport which are provided in itinerary level
-                
-                if (!buildFilters.Location) {
-                    buildFilters.Location = {
-                        "In terminal": 0,
-                        "Off terminal": 0,
-                        "At airport": 0,
-                        "Off airport": 0
-                    }
-                }
-
-                for (var i = 0; i < mappedData.objectNames.length; i++) {
-                    if (context[mappedData.objectNames[i]]) {
-                        mappedData.objectNames[i] == "atAirport" ? buildFilters.Location["At airport"]++ : buildFilters.Location["In terminal"]++
-                    } else if (mappedData.objectNames[i] == "inTerminal"){
-                        buildFilters.Location["Off terminal"]++ ;
-                    } else if (mappedData.objectNames[i] == "atAirport"){
-                        buildFilters.Location["Off airport"]++ ;
-                    }
-                }
-            },
-
-            _buildOptionsFilter: function (context, mappedData, buildFilters) {
-                if (!buildFilters[mappedData.filterName]) {
-                    buildFilters[mappedData.filterName] = {};
-                }
-
-                if (!buildFilters[mappedData.filterName][context[mappedData.objectNames[0]]]) {
-                    buildFilters[mappedData.filterName][context[mappedData.objectNames[0]]] = 1;
-                } else {
-                    buildFilters[mappedData.filterName][context[mappedData.objectNames[0]]]++ ;
-                }
-            },
-
-            _buildCarFeaturesFilter: function (context, mappedData, buildFilters) {
-                if (!buildFilters.Features) {
-                    buildFilters.Features = {
-                        "Air conditioned": 0,
-                        "Auto transmission": 0,
-                        "Unlimited mileage": 0
-                    }
-                }
-
-                for (var i = 0; i < mappedData.objectNames.length; i++) {
-                    if (mappedData.objectNames[i] == "airConditioning") {
-                        if (context[mappedData.objectNames[i]] && typeof context[mappedData.objectNames[i]] == "string" && context[mappedData.objectNames[i]].toLowerCase() == "yes") {
-                            buildFilters.Features["Air conditioned"] ++;
-                        }
-                    } else if(mappedData.objectNames[i] == "transmission"){
-                        if (context[mappedData.objectNames[i]] && typeof context[mappedData.objectNames[i]] == "string" && context[mappedData.objectNames[i]].toLowerCase() == "automatic") {
-                            buildFilters.Features["Auto transmission"] ++;
-                        }
-                    } else if(mappedData.objectNames[i] == "mileage"){
-                        if (context[mappedData.objectNames[i]] && context[mappedData.objectNames[i]].isUnlimited) {
-                            buildFilters.Features["Unlimited mileage"] ++;
-                        }
-                    }
-                }
-            },
-
-            _traverseToHierarchy: function (hierarchy, context) {
-                var namespaces = hierarchy.split(".");
-                if (namespaces) {
-                    for (var i = 0; i < namespaces.length; i++) {
-                        context = context[namespaces[i]];
-                    }
-                }
-                return context;
+                return true;
             },
 
             _applyFilters: function (event) {
@@ -987,11 +798,19 @@ after the list became visible again. e.g.
                 if (!this.data) {
                     return;
                 }
-
+                var generateFilteredRatio = true;
                 if (this.updateFilters) {
-                    this._updateFilters();
+                    generateFilteredRatio = this._updateFilters();
                 }
-                this.$.filter._getFilteredRatio(this.data.pagingInfo);
+
+                if (generateFilteredRatio) {
+                    this.$.filter._getFilteredRatio(this.data.pagingInfo);
+                } else {
+                    if (this.$.filter.filteredRatio) {
+                        this.data.pagingInfo.total = this.$.filter.filteredRatio.split('/')[1];
+                    }
+                    this.$.filter._getFilteredRatio(this.data.pagingInfo);
+                }
 
                 var list = [];
                 if (this.tokenParam === '') {
