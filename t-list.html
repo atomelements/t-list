@@ -720,6 +720,14 @@ after the list became visible again. e.g.
 
                 var filter = filters;
 
+                if (!this._defaultSorting && this.sortParams && this.sortParams.length) {
+                    var component = this;
+                    this.sortParams.forEach(function (param) {
+                        if (param.default == true)
+                            component._defaultSorting = param.value;
+                    });
+                }
+
                 if (filter.length > 0) {
                     this._isFiltering = true;
                     this.$.applyFilterCall.url = this.filterResultsApi + "&" + this._defaultSorting + this.sortBy;
