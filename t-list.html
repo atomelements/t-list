@@ -695,6 +695,7 @@ after the list became visible again. e.g.
                 }
 
                 var _self = this;
+                _self.$.filter.cachedFilters = [];
                 _self.$.filter.response = null;
                 setTimeout(function () {
                     _self.$.filter.response = filters;
