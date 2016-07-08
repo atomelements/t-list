@@ -32,21 +32,22 @@ TravelNxt.Behaviors.UpdateFiltersBehavior = {
         }
 
         //Find new values of filters from current results set
+        var behavior = this;
         inventories.forEach(function(inventory) {
-            Object.keys(filtersMapping).forEach(function(key) {
-                var mappedData = filtersMapping[key];
+            Object.keys(filtersMapping).forEach(function(filterItem) {
+                var mappedData = filtersMapping[filterItem];
                 var context, totalFareComponent;
 
                 if (mappedData.hierarchy) {
-                    context = this._traverseToHierarchy(mappedData.hierarchy, inventory);
+                    context = behavior._traverseToHierarchy(mappedData.hierarchy, inventory);
                 } else {
                     context = inventory;
                 }
 
                 if (mappedData.executeFunctionName) {
-                    totalFareComponent = this._executeFunctionByName(mappedData.executeFunctionName, this, context, mappedData, buildFilters);
+                    totalFareComponent = behavior._executeFunctionByName(mappedData.executeFunctionName, behavior, context, mappedData, buildFilters);
                 }
-            }
+            });
         });
 
         //update Filters existing filters
@@ -61,10 +62,15 @@ TravelNxt.Behaviors.UpdateFiltersBehavior = {
             }
             else if (buildFilter && filter.type === "Options") {
                 filter.items.forEach(function(item) {
-                    var filterLabel = buildFilter[item.toLowerCase()];
+                    var itemCount = null;
+                    Object.keys(buildFilter).forEach(function (filterItem) {
+                        if(filterItem.toLowerCase() == item.label.toLowerCase()){
+                            itemCount = buildFilter[filterItem];
+                        }
+                    });
 
                     if (item.additionalInfo && item.additionalInfo.length) {
-                          item.additionalInfo[0].value = filterLabel ? filterLabel : "0";
+                          item.additionalInfo[0].value = itemCount ? itemCount : "0";
                     }
                 });
             }
