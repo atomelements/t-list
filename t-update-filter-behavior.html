@@ -153,7 +153,8 @@ TravelNxt.Behaviors.UpdateFiltersBehavior = {
             buildFilters.Features = {
                 "Air conditioned": 0,
                 "Auto transmission": 0,
-                "Unlimited mileage": 0
+                "Unlimited mileage": 0,
+                "Manual transmission": 0
             }
         }
 
@@ -165,6 +166,8 @@ TravelNxt.Behaviors.UpdateFiltersBehavior = {
             } else if(mappedData.objectNames[i] == "transmission"){
                 if (context[mappedData.objectNames[i]] && typeof context[mappedData.objectNames[i]] == "string" && context[mappedData.objectNames[i]].toLowerCase() == "automatic") {
                     buildFilters.Features["Auto transmission"] ++;
+                } else {
+                    buildFilters.Features["Manual transmission"]++;
                 }
             } else if(mappedData.objectNames[i] == "mileage"){
                 if (context[mappedData.objectNames[i]] && context[mappedData.objectNames[i]].isUnlimited) {
