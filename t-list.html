@@ -198,7 +198,7 @@ after the list became visible again. e.g.
         </style>  
         <div id="listContainer" >
             <div hidden="[[!withFilter]]">                
-                <t-filter currency="[[currency]]" opened filter-icon="[[filterIcon]]" search-icon="[[searchIcon]]" excluded-filters="[[excludedFilters]]"  filter-response-param="[[filterResponseParam]]" id="filter" search-label="[[filterSearchLabel]]" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]" min-start-date="[[minStartDate]]" min-end-date="[[minEndDate]]"></t-filter>
+                <t-filter currency="[[currency]]" opened filter-icon="[[filterIcon]]" disable-filter-icon="[[disableFilterIcon]]" search-icon="[[searchIcon]]" excluded-filters="[[excludedFilters]]"  filter-response-param="[[filterResponseParam]]" id="filter" search-label="[[filterSearchLabel]]" show-twelve-hour-clock="[[showTwelveHourClock]]" auto="[[auto]]" class="flex" style="overflow:auto" filter-api="[[filterApi]]" filter-api-params="[[filterApiParams]]" include-filters="[[includeFilters]]" on-filter-change="_applyFilters" on-filter-close="_closeModal" on-filter-open="_onFilterOpen" results-paging-info="[[data.pagingInfo]]" min-start-date="[[minStartDate]]" min-end-date="[[minEndDate]]"></t-filter>
             </div>
             <div class="sorting paper-header" id="sortCntr">
                 <template is="dom-if" if$="[[withSorting]]">
@@ -574,6 +574,12 @@ after the list became visible again. e.g.
                 filterIcon: {
                     type: String,
                     value: 'filter-list'
+                },
+
+                /*Disable Filter icon to be replaced and given value*/
+                disableFilterIcon: {
+                    type: String,
+                    value: 'close'
                 },
 
                 /*search icon to be replaced and given value*/
