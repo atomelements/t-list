@@ -428,6 +428,19 @@ after the list became visible again. e.g.
                 },
 
                 /**
+                 * This property defines which values(count or starting price) are being deplayed in front of option filters.
+                 * [
+                 *     "showRatingCount",
+                 *     "show{filterGroup}Price"
+                 * ]
+                 * @type {Array}
+                 */
+                filterDisplaySettings: {
+                    type: Array,
+                    observer: '_setFilterDisplaySettings'
+                },
+
+                /**
                  * Turns the display of sorting controls
                  */
                 withSorting: {
@@ -717,6 +730,15 @@ after the list became visible again. e.g.
 
                 component.$.list.fire('resize');
 
+            },
+
+            _setFilterDisplaySettings: function () {
+                if (this.filterDisplaySettings.length) {
+                    var filterComp = this.$.filter;
+                    this.filterDisplaySettings.forEach(function (setting) {
+                        filterComp[setting] = true;
+                    })
+                }
             },
 
             _updateFilters: function () {
