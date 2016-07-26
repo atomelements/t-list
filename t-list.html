@@ -100,6 +100,10 @@ after the list became visible again. e.g.
             display: block;
             font-family: var(--primary-font-family, 'Open sans');
         }
+
+        .loadMoreWrapper {
+            margin: 10px 0;
+        }
         
         .section-small {
             padding: 10px ;
@@ -228,7 +232,7 @@ after the list became visible again. e.g.
             <template is="dom-if" if="{{!_contentLoaded}}">
                 <div class="absolute horizontal layout center-justified">
                 <t-loader id="contentLoader" active></t-loader>
-            </div>
+                </div>
             </template>
             <!-- <div class="error-message " hidden$="[[_noResultsMatched]]">[[note]]</div> -->
             
@@ -240,6 +244,9 @@ after the list became visible again. e.g.
             </div>
             <div id="ajaxLoaderContainer" hidden$="[[!ajaxLoaderContainer]]" class="horizontal layout flex center-justified padding-horzintal-10">
                 <t-loader id="ajaxLoader" active></t-loader>
+            </div>
+            <div class="layout horizontal center-justified loadMoreWrapper">
+              <t-button class="primary" disabled="{{ajaxLoaderContainer}}" hidden$="{{_hideLoadMore(_list, data)}}" on-tap="_loadMore" label="Load More" raised></t-button>
             </div>
         </div>
         <iron-ajax id="dataCall" method="[[dataCallMethod]]" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
@@ -586,6 +593,12 @@ after the list became visible again. e.g.
                 searchIcon: {
                     type: String,
                     value: 'search'
+                },
+
+                // use load more button or infinite scroll
+                loadMore: {
+                  type: Boolean,
+                  value: false
                 }
             },
 
@@ -603,7 +616,9 @@ after the list became visible again. e.g.
                         component._defaultSorting = param.value;
                 });
 
-                this._setupInfiniteScroll();
+                if (!this.loadMore) {
+                  this._setupInfiniteScroll();
+                }
 
                 if (this.dataApi != undefined && this.dataApi != '') {
                     this.$.dataCall.url = this.dataApi + (this.dataApi.indexOf('?') !=-1 ?  "&" : "?") + this._defaultSorting + this.sortBy;
@@ -626,6 +641,28 @@ after the list became visible again. e.g.
                     event.stopImmediatePropagation();
                     return false;
                 });
+            },
+
+            _hideLoadMore: function(_list, data) {
+              let fc = this.get('data.pagingInfo.filteredCount');
+              let lc = this.get('_list.length');
+
+              if (fc === null || fc === undefined ||
+                  lc === null || lc === undefined) {
+
+                return true;
+              }
+
+              return lc >= fc;
+            },
+
+            _loadMore: function(ev) {
+              if (ev.currentTarget.disabled) {
+                return;
+              }
+              else if (this._list.length < this.data.pagingInfo.filteredCount) {
+                this._getNextDataSet();
+              }
             },
 
             _dataApiChanged: function () {  
