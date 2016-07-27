@@ -246,7 +246,7 @@ after the list became visible again. e.g.
                 <t-loader id="ajaxLoader" active></t-loader>
             </div>
             <div class="layout horizontal center-justified loadMoreWrapper">
-              <t-button class="primary" disabled="{{ajaxLoaderContainer}}" hidden$="{{_hideLoadMore(_list, data)}}" on-tap="_loadMore" label="Load More" raised></t-button>
+              <t-button class="primary" disabled="{{ajaxLoaderContainer}}" hidden$="{{_hideLoadMore(loadMore, _list, data)}}" on-tap="_loadMore" label="Load More" raised></t-button>
             </div>
         </div>
         <iron-ajax id="dataCall" method="[[dataCallMethod]]" headers='{"accept": "application/json"}' content-type="application/json" handle-as="json" params="[[dataApiParams]]" last-response="{{data}}" on-response="_listPopulated"></iron-ajax>
@@ -656,11 +656,12 @@ after the list became visible again. e.g.
                 });
             },
 
-            _hideLoadMore: function(_list, data) {
+            _hideLoadMore: function(loadMore, _list, data) {
               let fc = this.get('data.pagingInfo.filteredCount');
               let lc = this.get('_list.length');
 
-              if (fc === null || fc === undefined ||
+              if (!loadMore ||
+                  fc === null || fc === undefined ||
                   lc === null || lc === undefined) {
 
                 return true;
