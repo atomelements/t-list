@@ -727,6 +727,8 @@ after the list became visible again. e.g.
                                 component._list = component._list.concat(component.data[component.tokenParam]);
                         }
                     }
+                } else {
+                    component._list = [];
                 }
 
                 component.$.list.fire('resize');
