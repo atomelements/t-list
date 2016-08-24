@@ -997,7 +997,10 @@ after the list became visible again. e.g.
             },
 
             _redirectToPage: function () {
-                window.location.href = this.redirectLink;
+                this.fire('redirect-click');
+                if (this.redirectLink) {
+                    window.location.href = this.redirectLink;
+                }
             },
 
             //Method to run generate filter 
