@@ -657,8 +657,8 @@ after the list became visible again. e.g.
             },
 
             _hideLoadMore: function(loadMore, _list, data) {
-              let fc = this.get('data.pagingInfo.filteredCount');
-              let lc = this.get('_list.length');
+              var fc = this.get('data.pagingInfo.filteredCount');
+              var lc = this.get('_list.length');
 
               if (!loadMore ||
                   fc === null || fc === undefined ||
