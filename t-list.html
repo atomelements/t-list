@@ -699,8 +699,8 @@ after the list became visible again. e.g.
             _selectionChanged: function (event) {
                 if (event.detail.value != null) {
                     this.selectedItem = event.detail.value;
-                    this.fire('item-selected', this.selectedItem);
                 }
+                this.fire('item-selected', this.selectedItem);
             },
 
             _getList: function () {
